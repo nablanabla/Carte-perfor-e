@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Carte Perforée — Activité Interactive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --text: #f1f1f1;
+            --text-dim: #a8a8b3;
+            --card-bg: #0f3460;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --hole-empty: #1a1a2e;
+            --hole-punched: #ffd166;
+            --card-paper: #2a4a7f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--warning));
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section.completed {
+            display: block;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 0.8rem;
+        }
+
+        .info-box {
+            background: rgba(255, 209, 102, 0.15);
+            border-left: 4px solid var(--warning);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .info-box strong {
+            color: var(--warning);
+        }
+
+        .success-box {
+            background: rgba(6, 214, 160, 0.15);
+            border-left: 4px solid var(--success);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .button {
+            background: linear-gradient(135deg, var(--accent), #c44569);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Crimson Pro', serif;
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+            margin-top: 1.5rem;
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(233, 69, 96, 0.5);
+        }
+
+        .button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .button-success {
+            background: linear-gradient(135deg, var(--success), #04a777);
+            box-shadow: 0 10px 30px rgba(6, 214, 160, 0.3);
+        }
+
+        .button-success:hover {
+            box-shadow: 0 15px 40px rgba(6, 214, 160, 0.5);
+        }
+
+        /* =====================
+   PUNCHED CARD STYLES
+   ===================== */
+
+        .card-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .punched-card {
+            background: var(--card-paper);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            user-select: none;
+        }
+
+        /* Corner cut top-left like real punch cards */
+        .punched-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            clip-path: polygon(0 0, 100% 0, 0 100%);
+        }
+
+        /* Row-based grid: chaque rangée = label + 6 cellules */
+        .card-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .card-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .row-header {
+            width: 115px;
+            text-align: right;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .row-header.hint {
+            font-size: 0.6rem;
+            opacity: 0.75;
+            white-space: normal;
+            line-height: 1.3;
+        }
+
+        .cell {
+            width: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .hole {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--card-paper);
+            border: 2.5px solid #000;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .hole:hover {
+            border-color: rgba(255, 209, 102, 0.8);
+            transform: scale(1.1);
+        }
+
+        .hole.punched {
+            background: #0a0a0f;
+            border-color: #000;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .hole.correct {
+            background: var(--card-paper);
+            border-color: var(--success);
+            box-shadow: 0 0 8px rgba(6, 214, 160, 0.4);
+        }
+
+        .hole.correct.punched {
+            background: #0a0a0f;
+            border-color: var(--success);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.9), 0 0 10px rgba(6, 214, 160, 0.5);
+        }
+
+        .hole.wrong {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(233, 69, 96, 0.6);
+            animation: shake 0.4s ease;
+        }
+
+        .hole.locked {
+            cursor: default;
+        }
+
+        .hole.locked:hover {
+            transform: none;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-4px);
+            }
+
+            75% {
+                transform: translateX(4px);
+            }
+        }
+
+        .col-num {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .col-bits {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .col-base {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: transparent;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .col-base.revealed {
+            color: var(--warning);
+        }
+
+        .col-base.correct-base {
+            color: var(--success);
+        }
+
+        .col-base.wrong-base {
+            color: var(--accent);
+        }
+
+        .clear-row-cb {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: block;
+        }
+
+        .clear-row-cb:hover {
+            border-color: var(--warning);
+            background: rgba(255, 209, 102, 0.2);
+        }
+
+        .clear-row-cb:checked {
+            background: var(--warning);
+            border-color: var(--warning);
+            position: relative;
+        }
+
+        .clear-row-cb:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* =====================
+   STEP 1: DISCOVERY
+   ===================== */
+
+        .bases-discovery {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .base-chip {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .base-chip.found {
+            border-color: var(--warning);
+            background: rgba(255, 209, 102, 0.15);
+            animation: popIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .base-chip-letter {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: transparent;
+            transition: color 0.3s;
+        }
+
+        .base-chip.found .base-chip-letter {
+            color: var(--warning);
+        }
+
+        .base-chip-code {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .discovery-counter {
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            color: var(--text-dim);
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .discovery-counter span {
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        /* =====================
+   STEP 2: TARGET
+   ===================== */
+
+        .target-sequence {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .target-base {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .target-base-letter {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--warning);
+        }
+
+        .target-base-num {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+        }
+
+        .target-base.done {
+            border-color: var(--success);
+            background: rgba(6, 214, 160, 0.1);
+        }
+
+        .target-base.done .target-base-letter {
+            color: var(--success);
+        }
+
+        /* =====================
+   STEP 3: READER
+   ===================== */
+
+        .reader-wrap {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .read-head {
+            position: absolute;
+            top: -8px;
+            width: 60px;
+            height: calc(100% + 16px);
+            background: rgba(233, 69, 96, 0.25);
+            border: 2px solid var(--accent);
+            border-radius: 6px;
+            transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .read-head::before {
+            content: '▼';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        .output-sequence {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+            min-height: 60px;
+            align-items: center;
+        }
+
+        .output-base {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: transparent;
+            transition: all 0.3s ease;
+            width: 40px;
+            text-align: center;
+        }
+
+        .output-base.lit {
+            color: var(--success);
+            text-shadow: 0 0 20px rgba(6, 214, 160, 0.6);
+            animation: basePop 0.4s ease-out;
+        }
+
+        @keyframes basePop {
+            0% {
+                transform: scale(0.5) translateY(10px);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.15);
+            }
+
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .reader-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        /* =====================
+   COMPLETION
+   ===================== */
+
+        .completion-message {
+            text-align: center;
+            padding: 3rem;
+            background: linear-gradient(135deg, rgba(6, 214, 160, 0.2), rgba(255, 209, 102, 0.2));
+            border-radius: 16px;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: celebrate 1s ease-out;
+        }
+
+        @keyframes celebrate {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+
+            25% {
+                transform: scale(1.2) rotate(-10deg);
+            }
+
+            75% {
+                transform: scale(1.2) rotate(10deg);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Legend table */
+        .legend-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .legend-table th {
+            background: rgba(233, 69, 96, 0.2);
+            padding: 0.8rem 1rem;
+            text-align: center;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .legend-table td {
+            padding: 0.8rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+
+        .legend-table tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .dot {
+            font-size: 1.2rem;
+        }
+
+        .dot-filled {
+            color: var(--warning);
+        }
+
+        .dot-empty {
+            color: var(--text-dim);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .hole {
+                width: 28px;
+                height: 28px;
+            }
+
+            .card-columns {
+                gap: 8px;
+            }
+
+            .base-chip {
+                width: 55px;
+                height: 55px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <header>
+            <h1>La Carte Perforée</h1>
+            <p class="subtitle">Du trou au gène — Activité Interactive</p>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <!-- =================== SECTION 1 : INTRODUCTION =================== -->
+        <div class="section active" id="section1">
+            <h2>🎯 Mise en situation</h2>
+            <p>En 1725, Basile Bouchon invente la <strong>carte perforée</strong> : un ruban de papier dans lequel des
+                trous sont poinçonnés. La présence ou l'absence d'un trou déclenche — ou non — une action mécanique.</p>
+            <p>Un siècle plus tard, ce principe entre dans les premiers ordinateurs. La logique est d'une simplicité
+                absolue :</p>
+
+            <div class="info-box">
+                <strong>Règle fondamentale :</strong> chaque position peut être dans deux états uniquement —
+                un trou <strong>présent</strong> ou <strong>absent</strong>. Deux états = un bit = la base du binaire.
+            </div>
+
+            <p>Dans cette activité, vous allez explorer une carte simplifiée : <strong>6 colonnes, 2 rangées</strong>.
+                Avec 2 rangées, chaque colonne peut coder 2² = <strong>4 symboles</strong> distincts.</p>
+            <p>Mais lesquels ? C'est ce que vous allez découvrir vous-même.</p>
+
+            <button class="button" onclick="goToSection(2)">Commencer l'exploration →</button>
+        </div>
+
+        <!-- =================== SECTION 2 : EXPLORATION LIBRE =================== -->
+        <div class="section" id="section2">
+            <h2>Étape 1 — Exploration libre</h2>
+            <p>Cliquez sur les trous pour les perforer (<span
+                    style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#0a0a0f;border:2px solid #000;vertical-align:middle;"></span>)
+                ou les effacer (<span
+                    style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--card-paper);border:2px solid #000;vertical-align:middle;"></span>).
+                Explorez les combinaisons possibles sur la première colonne.</p>
+            <div class="info-box" style="margin: 0.8rem 0;">
+                <strong>Astuce :</strong> une colonne sans aucun trou perforé correspond au code <strong>00</strong> —
+                c'est déjà la lettre <strong style="color:var(--warning)">A</strong>. Vous n'avez rien à faire pour
+                l'obtenir.
+            </div>
+
+            <div class="discovery-counter">Bases découvertes : <span id="discoveryCount">0</span> / 4</div>
+
+            <!-- Legend: 0/1 meaning -->
+            <div
+                style="font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--text-dim); text-align:center; margin-bottom:0.5rem;">
+                <span style="display:inline-flex;align-items:center;gap:6px;margin-right:1.5rem;">
+                    <span
+                        style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--card-paper);border:2px solid #000;"></span>
+                    <strong style="color:var(--warning)">0</strong> = non perforé
+                </span>
+                <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span
+                        style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#0a0a0f;border:2px solid #000;"></span>
+                    <strong style="color:var(--warning)">1</strong> = perforé
+                </span>
+            </div>
+
+            <!-- Bases discovered -->
+            <div class="bases-discovery">
+                <div class="base-chip" id="chip-A">
+                    <span class="base-chip-letter">A</span>
+                    <span class="base-chip-code">00</span>
+                </div>
+                <div class="base-chip" id="chip-T">
+                    <span class="base-chip-letter">T</span>
+                    <span class="base-chip-code">01</span>
+                </div>
+                <div class="base-chip" id="chip-G">
+                    <span class="base-chip-letter">G</span>
+                    <span class="base-chip-code">10</span>
+                </div>
+                <div class="base-chip" id="chip-C">
+                    <span class="base-chip-letter">C</span>
+                    <span class="base-chip-code">11</span>
+                </div>
+            </div>
+
+            <!-- The card - explore mode -->
+            <div class="card-wrap" id="exploreCardWrap">
+                <div class="punched-card">
+                    <div class="card-grid" id="exploreCard">
+                        <!-- generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box" id="dnaReveal" style="display:none;">
+                <strong>🧬 Lien avec la biologie !</strong> Ces 4 symboles correspondent exactement aux
+                <strong>4 bases azotées de l'ADN</strong> : Adénine (A), Thymine (T), Guanine (G) et Cytosine (C).
+                La nature stocke elle aussi l'information sur 2 bits par base — exactement le même principe
+                que votre carte perforée.
+            </div>
+
+            <button class="button" id="btn2" disabled onclick="goToSection(3)">Passer à l'encodage →</button>
+        </div>
+
+        <!-- =================== SECTION 3 : ENCODAGE DIRIGÉ =================== -->
+        <div class="section" id="section3">
+            <h2>Étape 2 — Encodage d'une séquence</h2>
+            <p>En biologie moléculaire, tout gène commence par le codon <strong
+                    style="color:var(--warning)">ATG</strong> (codon START) et se termine par un codon STOP. La séquence
+                à encoder ci-dessous contient les 4 bases et forme un cadre de lecture complet.</p>
+            <p>Votre mission : encoder la séquence <strong style="color:var(--warning)">ATG ATC TCG TAA</strong> sur la
+                carte, colonne par colonne. Les colonnes <strong>A</strong> sont déjà validées automatiquement — aucune
+                perforation n'est nécessaire.</p>
+
+            <div class="info-box" style="font-family:'Space Mono',monospace; font-size:0.95rem; line-height:2;">
+                <strong>Correspondances :</strong>&nbsp;&nbsp;
+                <span style="color:#06d6a0">A = 00</span> &nbsp;·&nbsp;
+                <span style="color:#ffd166">T = 01</span> &nbsp;·&nbsp;
+                <span style="color:#e94560">G = 10</span> &nbsp;·&nbsp;
+                <span style="color:#a8a8ff">C = 11</span>
+            </div>
+
+            <p style="color:var(--text-dim); font-size:0.95rem;">Séquence cible :</p>
+            <div class="target-sequence" id="targetSequence">
+                <!-- generated by JS -->
+            </div>
+
+            <div class="card-wrap" id="encodeCardWrap">
+                <div class="punched-card">
+                    <div class="card-grid" id="encodeCard">
+                        <!-- generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="encodeProgress"
+                style="font-family:'Space Mono',monospace; font-size:0.9rem; color:var(--text-dim); text-align:center; margin-top:0.5rem;">
+            </div>
+
+            <div class="success-box" id="encodeSuccess" style="display:none;">
+                ✅ <strong>Parfait !</strong> Vous avez encodé la séquence <strong>ATG ATC TCG TAA</strong> — un cadre de
+                lecture complet avec codon START, deux codons internes, et codon STOP.
+            </div>
+
+            <button class="button" id="btn3" disabled onclick="goToSection(4)">Simuler la lecture →</button>
+        </div>
+
+        <!-- =================== SECTION 4 : TÊTE DE LECTURE =================== -->
+        <div class="section" id="section4">
+            <h2>Étape 3 — La tête de lecture</h2>
+            <p>Sur une vraie carte perforée, une <strong>tête de lecture</strong> parcourt mécaniquement la carte de
+                gauche à droite. À chaque colonne, elle détecte les trous et produit le symbole correspondant.</p>
+            <p>Lancez la simulation pour voir la tête lire votre séquence.</p>
+
+            <div class="card-wrap" style="position:relative;" id="readerCardWrap">
+                <div class="punched-card" id="readerCard" style="position:relative; overflow:visible;">
+                    <div class="read-head" id="readHead" style="display:none;"></div>
+                    <div class="card-grid" id="readerGrid">
+                        <!-- generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <p style="color:var(--text-dim); font-size:0.95rem; text-align:center; margin-top:1rem;">Séquence lue :</p>
+            <div class="output-sequence" id="outputSequence">
+                <!-- generated by JS -->
+            </div>
+
+            <div class="reader-controls">
+                <button class="button button-success" id="btnRead" onclick="startReading()">▶ Lancer la lecture</button>
+                <button class="button" id="btnReset" onclick="resetReader()"
+                    style="background:linear-gradient(135deg,#444,#333); box-shadow:none;">↺ Recommencer</button>
+            </div>
+
+            <div class="info-box" id="readerExplain" style="display:none; margin-top:2rem;">
+                <strong>Ce que vous venez de voir :</strong>
+                <ul style="margin-top:0.8rem; padding-left:1.2rem; line-height:2;">
+                    <li>Colonnes 1–3 : <strong style="color:#e94560">ATG</strong> → codon START</li>
+                    <li>Colonnes 4–6 : <strong style="color:#a8a8ff">ATC</strong> → codon interne (Isoleucine)</li>
+                    <li>Colonnes 7–9 : <strong style="color:#e94560">TCG</strong> → codon interne (Sérine)</li>
+                    <li>Colonnes 10–12 : <strong style="color:#ffd166">TAA</strong> → codon STOP</li>
+                    <li>Entre ATG et TAA, chaque triplet code un <strong>acide aminé → protéine</strong></li>
+                </ul>
+            </div>
+
+            <button class="button" id="btn4" disabled onclick="goToSection(5)">Conclusion →</button>
+        </div>
+
+        <!-- =================== SECTION 5 : CONCLUSION =================== -->
+        <div class="section" id="section5">
+            <div class="completion-message">
+                <div class="completion-icon">🧬</div>
+                <h2 style="color:var(--success);">Félicitations !</h2>
+                <p style="margin-top:1rem; font-size:1.2rem;">
+                    Vous avez encodé une séquence d'ADN sur une carte perforée de 1725.
+                </p>
+                <p style="margin-top:1rem; font-size:1.1rem; color:var(--text-dim);">
+                    Le principe est le même depuis trois siècles : toute information se réduit à une suite de
+                    <strong>présences</strong> et d'<strong>absences</strong>. Deux états. Un bit. Le fondement de tout
+                    stockage numérique.
+                </p>
+            </div>
+
+            <div class="info-box" style="margin-top:2rem;">
+                <strong>🔁 Ce que vous avez découvert :</strong>
+                <ul style="margin-top:0.8rem; padding-left:1.2rem; line-height:2;">
+                    <li>2 rangées × 1 colonne = 2² = <strong>4 symboles possibles</strong></li>
+                    <li>Ces 4 symboles correspondent aux <strong>bases de l'ADN</strong></li>
+                    <li>6 colonnes = un <strong>cadre de lecture complet</strong> (ATG···TAA)</li>
+                    <li>La tête de lecture produit la séquence par simple <strong>détection mécanique des trous</strong>
+                    </li>
+                    <li>Avec 3 rangées → 8 symboles ; avec n rangées → <strong>2ⁿ symboles</strong></li>
+                </ul>
+            </div>
+        </div>
+
+    </div><!-- /container -->
+
+    <script>
+        // =============================================
+        // CONSTANTS
+        // =============================================
+        const BASES = {
+            '00': 'A',
+            '01': 'T',
+            '10': 'G',
+            '11': 'C'
+        };
+
+        const BASE_COLORS = {
+            'A': '#06d6a0',
+            'T': '#ffd166',
+            'G': '#e94560',
+            'C': '#a8a8ff'
+        };
+
+        const TARGET = ['A', 'T', 'G', 'A', 'T', 'C', 'T', 'C', 'G', 'T', 'A', 'A']; // ATGATCTCGTAA
+        const NUM_COLS = 12;
+
+        // =============================================
+        // STATE
+        // =============================================
+        let exploreState = Array.from({ length: NUM_COLS }, () => [0, 0]);
+        let encodeState = Array.from({ length: NUM_COLS }, () => [0, 0]);
+        let basesFound = new Set();
+        let encodeCorrect = new Array(NUM_COLS).fill(false);
+        let readingInterval = null;
+        let readingDone = false;
+
+        // =============================================
+        // PROGRESS
+        // =============================================
+        function updateProgress(pct) {
+            document.getElementById('progressBar').style.width = pct + '%';
+        }
+
+        function goToSection(n) {
+            // Mark current as completed
+            const sections = document.querySelectorAll('.section.active');
+            sections.forEach(s => {
+                s.classList.remove('active');
+                s.classList.add('completed');
+            });
+
+            const target = document.getElementById('section' + n);
+            target.classList.add('active');
+
+            const progressMap = { 2: 20, 3: 50, 4: 75, 5: 100 };
+            updateProgress(progressMap[n] || 0);
+
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            if (n === 3) buildEncodeCard();
+            if (n === 4) buildReaderCard();
+        }
+
+        // =============================================
+        // EXPLORE CARD
+        // =============================================
+        function buildExploreCard() {
+            const grid = document.getElementById('exploreCard');
+            grid.innerHTML = '';
+
+            // Helper: create a row with a left label
+            function makeRow(labelText, labelClass) {
+                const row = document.createElement('div');
+                row.className = 'card-row';
+                const label = document.createElement('div');
+                label.className = 'row-header' + (labelClass ? ' ' + labelClass : '');
+                label.innerHTML = labelText;
+                row.appendChild(label);
+                return row;
+            }
+
+            const numRow = makeRow('');
+            const row1 = makeRow('Rangée 1');
+            const row2 = makeRow('Rangée 2');
+            const bitsRow = makeRow('');
+            const baseRow = makeRow('');
+
+            for (let c = 0; c < NUM_COLS; c++) {
+                // Column number
+                const numCell = document.createElement('div');
+                numCell.className = 'cell';
+                const numLabel = document.createElement('div');
+                numLabel.className = 'col-num';
+                numLabel.textContent = c + 1;
+                numCell.appendChild(numLabel);
+                numRow.appendChild(numCell);
+
+                // Holes (row 0 and row 1)
+                for (let r = 0; r < 2; r++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const hole = document.createElement('div');
+                    hole.className = 'hole';
+                    hole.id = `exp-hole-${c}-${r}`;
+                    hole.onclick = () => toggleExploreHole(c, r);
+                    cell.appendChild(hole);
+                    (r === 0 ? row1 : row2).appendChild(cell);
+                }
+
+                // Bits
+                const bitsCell = document.createElement('div');
+                bitsCell.className = 'cell';
+                const bitsEl = document.createElement('div');
+                bitsEl.className = 'col-bits';
+                bitsEl.id = `exp-bits-${c}`;
+                bitsEl.textContent = '00';
+                bitsCell.appendChild(bitsEl);
+                bitsRow.appendChild(bitsCell);
+
+                // Base
+                const baseCell = document.createElement('div');
+                baseCell.className = 'cell';
+                const baseEl = document.createElement('div');
+                baseEl.className = 'col-base revealed';
+                baseEl.id = `exp-base-${c}`;
+                baseEl.textContent = 'A';
+                baseEl.style.color = BASE_COLORS['A'];
+                baseCell.appendChild(baseEl);
+                baseRow.appendChild(baseCell);
+            }
+
+            [numRow, row1, row2, bitsRow, baseRow].forEach(r => grid.appendChild(r));
+
+            // A est visible dès le départ (00 = état initial)
+            basesFound.add('A');
+            document.getElementById('discoveryCount').textContent = basesFound.size;
+            revealBase('A', '00');
+        }
+
+        function toggleExploreHole(col, row) {
+            exploreState[col][row] = exploreState[col][row] ? 0 : 1;
+            renderExploreCard();
+            checkDiscovery(col);
+        }
+
+        function renderExploreCard() {
+            for (let c = 0; c < NUM_COLS; c++) {
+                for (let r = 0; r < 2; r++) {
+                    const hole = document.getElementById(`exp-hole-${c}-${r}`);
+                    if (hole) hole.classList.toggle('punched', exploreState[c][r] === 1);
+                }
+                const bits = `${exploreState[c][0]}${exploreState[c][1]}`;
+                const base = BASES[bits];
+                const bitsEl = document.getElementById(`exp-bits-${c}`);
+                const baseEl = document.getElementById(`exp-base-${c}`);
+                if (bitsEl) bitsEl.textContent = bits;
+                if (baseEl) {
+                    baseEl.textContent = base;
+                    if (basesFound.has(base)) {
+                        baseEl.classList.add('revealed');
+                        baseEl.style.color = BASE_COLORS[base];
+                    } else {
+                        baseEl.classList.remove('revealed');
+                        baseEl.style.color = 'transparent';
+                        baseEl.textContent = '?';
+                    }
+                }
+            }
+        }
+
+        function checkDiscovery(col) {
+            const bits = `${exploreState[col][0]}${exploreState[col][1]}`;
+            const base = BASES[bits];
+            if (!basesFound.has(base)) {
+                basesFound.add(base);
+                revealBase(base, bits);
+            }
+
+            document.getElementById('discoveryCount').textContent = basesFound.size;
+
+            // Re-render so newly found bases show
+            renderExploreCard();
+
+            if (basesFound.size === 4) {
+                document.getElementById('dnaReveal').style.display = 'block';
+                document.getElementById('btn2').disabled = false;
+            }
+        }
+
+        function clearExploreCol(col, cb) {
+            if (cb.checked) {
+                // Verrouiller : effacer les trous et désactiver
+                exploreState[col][0] = 0;
+                exploreState[col][1] = 0;
+                for (let r = 0; r < 2; r++) {
+                    const hole = document.getElementById(`exp-hole-${col}-${r}`);
+                    if (hole) { hole.classList.remove('punched'); hole.classList.add('locked'); hole.onclick = null; }
+                }
+                renderExploreCard();
+                checkDiscovery(col);
+            } else {
+                // Déverrouiller : réactiver les trous
+                for (let r = 0; r < 2; r++) {
+                    const hole = document.getElementById(`exp-hole-${col}-${r}`);
+                    if (hole) {
+                        hole.classList.remove('locked');
+                        hole.onclick = () => toggleExploreHole(col, r);
+                    }
+                }
+            }
+        }
+
+        function revealBase(base, bits) {
+            const chip = document.getElementById(`chip-${base}`);
+            if (chip) {
+                chip.classList.add('found');
+                chip.querySelector('.base-chip-letter').style.color = BASE_COLORS[base];
+            }
+        }
+
+        function clearEncodeCol(col, cb) {
+            if (encodeCorrect[col]) { cb.checked = false; return; }
+            if (cb.checked) {
+                // Verrouiller : effacer et désactiver
+                encodeState[col][0] = 0;
+                encodeState[col][1] = 0;
+                for (let r = 0; r < 2; r++) {
+                    const hole = document.getElementById(`enc-hole-${col}-${r}`);
+                    if (hole) { hole.classList.remove('punched'); hole.classList.add('locked'); hole.onclick = null; }
+                }
+                renderEncodeCol(col);
+                checkEncodeColumn(col);
+            } else {
+                // Déverrouiller si la colonne n'est pas encore validée
+                if (!encodeCorrect[col]) {
+                    for (let r = 0; r < 2; r++) {
+                        const hole = document.getElementById(`enc-hole-${col}-${r}`);
+                        if (hole) {
+                            hole.classList.remove('locked');
+                            hole.onclick = () => toggleEncodeHole(col, r);
+                        }
+                    }
+                }
+            }
+        }
+
+        // =============================================
+        // ENCODE CARD
+        // =============================================
+        function buildEncodeCard() {
+            // Build target display
+            const targetSeq = document.getElementById('targetSequence');
+            targetSeq.innerHTML = '';
+            TARGET.forEach((base, i) => {
+                const tb = document.createElement('div');
+                tb.className = 'target-base';
+                tb.id = `target-${i}`;
+                const letter = document.createElement('div');
+                letter.className = 'target-base-letter';
+                letter.textContent = base;
+                const num = document.createElement('div');
+                num.className = 'target-base-num';
+                num.textContent = `col.${i + 1}`;
+                tb.appendChild(letter);
+                tb.appendChild(num);
+                targetSeq.appendChild(tb);
+            });
+
+            // Build card
+            const grid = document.getElementById('encodeCard');
+            grid.innerHTML = '';
+            encodeState = Array.from({ length: NUM_COLS }, () => [0, 0]);
+            encodeCorrect = new Array(NUM_COLS).fill(false);
+
+            function makeRow(labelText, labelClass) {
+                const row = document.createElement('div');
+                row.className = 'card-row';
+                const label = document.createElement('div');
+                label.className = 'row-header' + (labelClass ? ' ' + labelClass : '');
+                label.innerHTML = labelText;
+                row.appendChild(label);
+                return row;
+            }
+
+            const numRow = makeRow('');
+            const row1 = makeRow('Rangée 1');
+            const row2 = makeRow('Rangée 2');
+            const bitsRow = makeRow('');
+            const baseRow = makeRow('');
+
+            for (let c = 0; c < NUM_COLS; c++) {
+                // Column number
+                const numCell = document.createElement('div');
+                numCell.className = 'cell';
+                const numLabel = document.createElement('div');
+                numLabel.className = 'col-num';
+                numLabel.textContent = c + 1;
+                numCell.appendChild(numLabel);
+                numRow.appendChild(numCell);
+
+                // Holes
+                for (let r = 0; r < 2; r++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const hole = document.createElement('div');
+                    hole.className = 'hole';
+                    hole.id = `enc-hole-${c}-${r}`;
+                    hole.onclick = () => toggleEncodeHole(c, r);
+                    cell.appendChild(hole);
+                    (r === 0 ? row1 : row2).appendChild(cell);
+                }
+
+                // Bits
+                const bitsCell = document.createElement('div');
+                bitsCell.className = 'cell';
+                const bitsEl = document.createElement('div');
+                bitsEl.className = 'col-bits';
+                bitsEl.id = `enc-bits-${c}`;
+                bitsEl.textContent = '00';
+                bitsCell.appendChild(bitsEl);
+                bitsRow.appendChild(bitsCell);
+
+                // Base — A highlighted by default (00 = A)
+                const baseCell = document.createElement('div');
+                baseCell.className = 'cell';
+                const baseEl = document.createElement('div');
+                baseEl.className = 'col-base revealed';
+                baseEl.id = `enc-base-${c}`;
+                baseEl.textContent = 'A';
+                baseEl.style.color = BASE_COLORS['A'];
+                baseCell.appendChild(baseEl);
+                baseRow.appendChild(baseCell);
+            }
+
+            [numRow, row1, row2, bitsRow, baseRow].forEach(r => grid.appendChild(r));
+
+            // Auto-valider les colonnes A (00 = état initial, aucune action requise)
+            for (let c = 0; c < NUM_COLS; c++) {
+                if (TARGET[c] === 'A') checkEncodeColumn(c);
+            }
+
+            updateEncodeProgress();
+        }
+
+        function toggleEncodeHole(col, row) {
+            if (encodeCorrect[col]) return; // locked if correct
+            encodeState[col][row] = encodeState[col][row] ? 0 : 1;
+            renderEncodeCol(col);
+            checkEncodeColumn(col);
+        }
+
+        function renderEncodeCol(col) {
+            for (let r = 0; r < 2; r++) {
+                const hole = document.getElementById(`enc-hole-${col}-${r}`);
+                if (hole) hole.classList.toggle('punched', encodeState[col][r] === 1);
+            }
+            const bits = `${encodeState[col][0]}${encodeState[col][1]}`;
+            const base = BASES[bits];
+            const bitsEl = document.getElementById(`enc-bits-${col}`);
+            const baseEl = document.getElementById(`enc-base-${col}`);
+            if (bitsEl) bitsEl.textContent = bits;
+            if (baseEl) {
+                baseEl.textContent = base;
+                if (encodeCorrect[col]) {
+                    baseEl.style.color = 'var(--success)';
+                } else {
+                    // Always show current base in its color (A = teal, etc.)
+                    baseEl.style.color = BASE_COLORS[base];
+                }
+            }
+        }
+
+        function checkEncodeColumn(col) {
+            const bits = `${encodeState[col][0]}${encodeState[col][1]}`;
+            const base = BASES[bits];
+            const targetBase = TARGET[col];
+
+            if (base === targetBase) {
+                // Correct!
+                encodeCorrect[col] = true;
+                for (let r = 0; r < 2; r++) {
+                    const hole = document.getElementById(`enc-hole-${col}-${r}`);
+                    if (hole) {
+                        hole.classList.remove('wrong');
+                        hole.classList.add('correct', 'locked');
+                        hole.onclick = null;
+                    }
+                }
+                const baseEl = document.getElementById(`enc-base-${col}`);
+                if (baseEl) { baseEl.style.color = 'var(--success)'; baseEl.classList.add('correct-base'); }
+
+                // Mark target
+                const targetEl = document.getElementById(`target-${col}`);
+                if (targetEl) targetEl.classList.add('done');
+
+                // Feedback flash on holes
+                setTimeout(() => { }, 300);
+            } else {
+                // Wrong - shake
+                for (let r = 0; r < 2; r++) {
+                    const hole = document.getElementById(`enc-hole-${col}-${r}`);
+                    if (hole) {
+                        hole.classList.add('wrong');
+                        setTimeout(() => hole.classList.remove('wrong'), 500);
+                    }
+                }
+                const baseEl = document.getElementById(`enc-base-${col}`);
+                if (baseEl) { baseEl.style.color = 'var(--accent)'; baseEl.classList.add('wrong-base'); setTimeout(() => baseEl.classList.remove('wrong-base'), 500); }
+            }
+
+            updateEncodeProgress();
+        }
+
+        function updateEncodeProgress() {
+            const done = encodeCorrect.filter(Boolean).length;
+            const el = document.getElementById('encodeProgress');
+            if (el) el.textContent = `${done} / ${NUM_COLS} colonnes encodées correctement`;
+
+            if (done === NUM_COLS) {
+                document.getElementById('encodeSuccess').style.display = 'block';
+                document.getElementById('btn3').disabled = false;
+            }
+        }
+
+        // =============================================
+        // READER CARD
+        // =============================================
+        function buildReaderCard() {
+            const grid = document.getElementById('readerGrid');
+            grid.innerHTML = '';
+
+            const targetBits = TARGET.map(base =>
+                Object.entries(BASES).find(([k, v]) => v === base)[0]
+            );
+
+            function makeRow(labelText) {
+                const row = document.createElement('div');
+                row.className = 'card-row';
+                const label = document.createElement('div');
+                label.className = 'row-header';
+                label.innerHTML = labelText;
+                row.appendChild(label);
+                return row;
+            }
+
+            const numRow = makeRow('');
+            const row1 = makeRow('Rangée 1');
+            const row2 = makeRow('Rangée 2');
+            const bitsRow = makeRow('');
+            const baseRow = makeRow('');
+
+            for (let c = 0; c < NUM_COLS; c++) {
+                const bits = targetBits[c];
+
+                // Column number
+                const numCell = document.createElement('div');
+                numCell.className = 'cell';
+                const numLabel = document.createElement('div');
+                numLabel.className = 'col-num';
+                numLabel.textContent = c + 1;
+                numCell.appendChild(numLabel);
+                numRow.appendChild(numCell);
+
+                // Holes
+                for (let r = 0; r < 2; r++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `read-cell-${c}-${r}`;
+                    const hole = document.createElement('div');
+                    hole.className = 'hole locked' + (bits[r] === '1' ? ' punched' : '');
+                    cell.appendChild(hole);
+                    (r === 0 ? row1 : row2).appendChild(cell);
+                }
+
+                // Bits
+                const bitsCell = document.createElement('div');
+                bitsCell.className = 'cell';
+                const bitsEl = document.createElement('div');
+                bitsEl.className = 'col-bits';
+                bitsEl.textContent = bits;
+                bitsCell.appendChild(bitsEl);
+                bitsRow.appendChild(bitsCell);
+
+                // Base (hidden until read)
+                const baseCell = document.createElement('div');
+                baseCell.className = 'cell';
+                const baseEl = document.createElement('div');
+                baseEl.className = 'col-base';
+                baseEl.id = `read-base-${c}`;
+                baseEl.textContent = TARGET[c];
+                baseEl.style.color = 'transparent';
+                baseCell.appendChild(baseEl);
+                baseRow.appendChild(baseCell);
+            }
+
+            [numRow, row1, row2, bitsRow, baseRow].forEach(r => grid.appendChild(r));
+
+            // Build output slots
+            const output = document.getElementById('outputSequence');
+            output.innerHTML = '';
+            TARGET.forEach((base, i) => {
+                const el = document.createElement('div');
+                el.className = 'output-base';
+                el.id = `out-${i}`;
+                el.textContent = base;
+                output.appendChild(el);
+            });
+
+            positionReadHead(-1);
+        }
+
+        function positionReadHead(colIndex) {
+            const head = document.getElementById('readHead');
+            if (colIndex < 0) { head.style.display = 'none'; return; }
+
+            // Find the cell in row 1 for this column
+            const cell = document.getElementById(`read-cell-${colIndex}-0`);
+            if (!cell) return;
+
+            head.style.display = 'block';
+            const cardRect = document.getElementById('readerCard').getBoundingClientRect();
+            const cellRect = cell.getBoundingClientRect();
+            head.style.left = (cellRect.left - cardRect.left - 6) + 'px';
+            head.style.width = (cellRect.width + 12) + 'px';
+        }
+
+        function startReading() {
+            if (readingInterval) return;
+            document.getElementById('btnRead').disabled = true;
+            document.getElementById('readerColumns');
+
+            let col = 0;
+            readingInterval = setInterval(() => {
+                if (col >= NUM_COLS) {
+                    clearInterval(readingInterval);
+                    readingInterval = null;
+                    positionReadHead(-1);
+                    document.getElementById('readerExplain').style.display = 'block';
+                    document.getElementById('btn4').disabled = false;
+                    return;
+                }
+
+                positionReadHead(col);
+
+                // Light up base under head
+                const baseEl = document.getElementById(`read-base-${col}`);
+                if (baseEl) {
+                    baseEl.style.color = BASE_COLORS[TARGET[col]];
+                    baseEl.style.textShadow = `0 0 12px ${BASE_COLORS[TARGET[col]]}88`;
+                }
+
+                // Light up output
+                const outEl = document.getElementById(`out-${col}`);
+                if (outEl) outEl.classList.add('lit');
+
+                col++;
+            }, 700);
+        }
+
+        function resetReader() {
+            clearInterval(readingInterval);
+            readingInterval = null;
+            positionReadHead(-1);
+
+            for (let c = 0; c < NUM_COLS; c++) {
+                const baseEl = document.getElementById(`read-base-${c}`);
+                if (baseEl) { baseEl.style.color = 'transparent'; baseEl.style.textShadow = 'none'; }
+                const outEl = document.getElementById(`out-${c}`);
+                if (outEl) outEl.classList.remove('lit');
+            }
+
+            document.getElementById('btnRead').disabled = false;
+            document.getElementById('readerExplain').style.display = 'none';
+            document.getElementById('btn4').disabled = true;
+        }
+
+        // =============================================
+        // INIT
+        // =============================================
+        buildExploreCard();
+        updateProgress(0);
+    </script>
+</body>
+
+</html>

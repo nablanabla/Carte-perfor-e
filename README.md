@@ -1,6 +1,6 @@
-🚀 **[Lancer l'activité](https://nablanabla.github.io/Carte-perfor-e/)** 
+🚀 ##[Lancer l'activité](https://nablanabla.github.io/Carte-perfor-e/)## 
 
-# La Carte Perforée — Activité Interactive
+## La Carte Perforée — Activité Interactive
 
 Activité pédagogique interactive sur le principe de la carte perforée et son lien avec le stockage binaire de l'information.
 

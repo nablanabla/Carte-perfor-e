@@ -26,11 +26,12 @@ L'étudiant encode la séquence `ATG ATC TCG TAA` — un cadre de lecture biolog
 **Étape 3 — Simulation de la tête de lecture**
 Une animation montre une tête de lecture parcourant la carte de gauche à droite, décodant la séquence en temps réel.
 
-## Utilisation
 
-Fichier unique `index.html`, aucune dépendance externe (hors Google Fonts).  
-Ouvrir directement dans un navigateur ou déployer sur GitHub Pages.
 
-## Lien avec l'activité Entropie
+## 👨‍🏫 Auteur
 
-Cette activité est conçue pour s'intégrer au même parcours pédagogique que l'activité [Découvrir l'Entropie](../activite-entropie/index.html), dans le cadre d'une progression sur les fondements du numérique en santé.
+**Alban Da Silva**  
+Chargé d'Enseignement en Médecine - Faculté de Médecine  
+Université Laval, Québec, Canada
+
+**Contexte :** Cours "Culture Numérique en Sciences de la Santé"

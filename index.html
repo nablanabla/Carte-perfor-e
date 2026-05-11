@@ -761,12 +761,17 @@
             <p>Un siècle plus tard, ce principe entre dans les premiers ordinateurs. La logique est d'une simplicité
                 absolue :</p>
 
+            <div style="text-align:center; margin: 1.5rem 0;">
+                <img src="assets/images/carte_perforee.jpg" alt="Exemple d'une carte perforée"
+                    style="max-width: 100%; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);">
+            </div>
+
             <div class="info-box">
                 <strong>Règle fondamentale :</strong> chaque position peut être dans deux états uniquement —
                 un trou <strong>présent</strong> ou <strong>absent</strong>. Deux états = un bit = la base du binaire.
             </div>
 
-            <p>Dans cette activité, vous allez explorer une carte simplifiée : <strong>6 colonnes, 2 rangées</strong>.
+            <p>Dans cette activité, vous allez explorer une carte simplifiée : <strong>12 colonnes, 2 rangées</strong>.
                 Avec 2 rangées, chaque colonne peut coder 2² = <strong>4 symboles</strong> distincts.</p>
             <p>Mais lesquels ? C'est ce que vous allez découvrir vous-même.</p>
 
@@ -933,29 +938,68 @@
                 <div class="completion-icon">🧬</div>
                 <h2 style="color:var(--success);">Félicitations !</h2>
                 <p style="margin-top:1rem; font-size:1.2rem;">
-                    Vous avez encodé une séquence d'ADN sur une carte perforée de 1725.
+                    Vous avez encodé une séquence d'ADN sur une carte perforée de 1725 !!
                 </p>
                 <p style="margin-top:1rem; font-size:1.1rem; color:var(--text-dim);">
                     Le principe est le même depuis trois siècles : toute information se réduit à une suite de
-                    <strong>présences</strong> et d'<strong>absences</strong>. Deux états. Un bit. Le fondement de tout
+                    <strong>présences</strong> et d'<strong>absences</strong>. Un de ces deux états constitue l'unité de base: <strong> le bit </strong>. C'est le fondement de tout
                     stockage numérique.
+                </p>
+            </div>
+
+            <div
+                style="margin-top:2rem; background: rgba(233,69,96,0.1); border-left: 4px solid var(--accent); padding: 1.5rem; border-radius: 10px;">
+                <strong style="color:var(--accent);">⚡ Et aujourd'hui ? La mémoire flash</strong>
+                <p style="margin-top:1rem;">Le principe n'a pas changé — seul le support physique a évolué.</p>
+            
+                <div
+                    style="display:flex; gap:1.5rem; margin-top:1.2rem; flex-wrap:wrap; justify-content:center; font-family:'Space Mono',monospace; font-size:0.85rem; text-align:center;">
+                    <div style="flex:1; min-width:180px; background:rgba(0,0,0,0.2); border-radius:10px; padding:1rem;">
+                        <div style="font-size:2rem; margin-bottom:0.5rem;">🗂️</div>
+                        <div style="color:var(--warning); font-weight:700; margin-bottom:0.5rem;">Carte perforée</div>
+                        <div style="color:var(--text-dim);">Trou <strong style="color:var(--text);">présent</strong> → <strong
+                                style="color:var(--warning);">1</strong></div>
+                        <div style="color:var(--text-dim);">Trou <strong style="color:var(--text);">absent</strong> → <strong
+                                style="color:var(--warning);">0</strong></div>
+                        <div style="color:var(--text-dim); margin-top:0.5rem; font-size:0.75rem;">détection mécanique</div>
+                    </div>
+                    <div style="display:flex; align-items:center; font-size:1.5rem; color:var(--text-dim);">→</div>
+                    <div style="flex:1; min-width:180px; background:rgba(0,0,0,0.2); border-radius:10px; padding:1rem;">
+                        <div style="font-size:2rem; margin-bottom:0.5rem;">⚡</div>
+                        <div style="color:var(--accent); font-weight:700; margin-bottom:0.5rem;">Mémoire flash</div>
+                        <div style="color:var(--text-dim);">Cellule <strong style="color:var(--text);">chargée</strong> → <strong
+                                style="color:var(--accent);">1</strong></div>
+                        <div style="color:var(--text-dim);">Cellule <strong style="color:var(--text);">déchargée</strong> → <strong
+                                style="color:var(--accent);">0</strong></div>
+                        <div style="color:var(--text-dim); margin-top:0.5rem; font-size:0.75rem;">détection électrique</div>
+                    </div>
+                </div>
+            
+                <p style="margin-top:1.2rem; color:var(--text-dim); font-size:0.95rem;">
+                    Dans votre clé USB ou votre téléphone, chaque cellule de mémoire est un minuscule transistor flottant.
+                    Il peut piéger des électrons (→ <strong style="color:var(--text);">1</strong>) ou en être vidé (→ <strong
+                        style="color:var(--text);">0</strong>).
+                    Deux états. Un bit. Exactement comme le trou de Bouchon en 1725.
                 </p>
             </div>
 
             <div class="info-box" style="margin-top:2rem;">
                 <strong>🔁 Ce que vous avez découvert :</strong>
                 <ul style="margin-top:0.8rem; padding-left:1.2rem; line-height:2;">
-                    <li>2 rangées × 1 colonne = 2² = <strong>4 symboles possibles</strong></li>
-                    <li>Ces 4 symboles correspondent aux <strong>bases de l'ADN</strong></li>
-                    <li>6 colonnes = un <strong>cadre de lecture complet</strong> (ATG···TAA)</li>
-                    <li>La tête de lecture produit la séquence par simple <strong>détection mécanique des trous</strong>
+                    <li>Les données sont stockées sous forme de séries de <strong>bits</strong></li>
+                    <li>La lecture des données se fait par passage d'une <strong>tête de lecture</strong> sur des colonnes
                     </li>
-                    <li>Avec 3 rangées → 8 symboles ; avec n rangées → <strong>2ⁿ symboles</strong></li>
+                    <li>C'est ce principe qui est <strong>toujours</strong> utilisé dans le stockage des données </li>
                 </ul>
             </div>
         </div>
 
     </div><!-- /container -->
+
+    <div style="text-align:center; margin-top:2.5rem; font-family:'Space Mono',monospace;">
+        <span style="color:var(--text-dim); font-size:0.85rem; letter-spacing:0.2em; text-transform:uppercase;">— Fin de
+            l'activité —</span>
+    </div>
 
     <script>
         // =============================================

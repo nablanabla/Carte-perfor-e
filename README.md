@@ -10,7 +10,7 @@ Activité pédagogique interactive sur le principe de la carte perforée et son 
   <em style="font-size:0.85rem; color:gray;">Un ruban perforé : l'ancêtre des systèmes de stockage. — CC BY-SA 3.0, Wikimedia Commons</em>
 </div>
 
-Développée pour le cours **Culture numérique en Sciences de la Santé** (Université Laval, DIEM).
+
 
 ## Objectifs pédagogiques
 
